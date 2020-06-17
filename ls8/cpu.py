@@ -92,7 +92,7 @@ class CPU:
         print("SUB not implemented yet")
         pass
 
-    def MUL():
+    def MUL(self):
         # Eventually I will want to hook this up to the ALU
         # I will want to perform the operations in the ALU
         # using only && and ||. I would want ADD to use these
@@ -228,12 +228,29 @@ class CPU:
         pass
 
     def PUSH(self):
-        print("PUSH not implemented yet")
-        pass
+        """Places something on the stack, stored in Ram"""
+        print("Push ran")
+        # Decrement the sp (R7)
+        self.reg[7] -= 1
+        # Copy the value given to the address pointed by SP
+        reg_num = self.ram[self.pc+1]
+        value = self.reg[reg_num]
+        # Figure where to put it
+        top_of_stack_addr = self.reg[7]
+        # put it there
+        self.ram[top_of_stack_addr] = value
+        self.pc += 2
 
     def POP(self):
-        print("POP not implemented yet")
-        pass
+        print("POP ran")
+        # Copy the value from memory at the address pointed to by SP
+        address = self.reg[7]
+        value = self.reg[address]
+        reg_num = self.ram[self.pc+1]
+        self.reg[reg_num] = value
+        # Increment the SP
+        self.reg[7] += 1
+        self.pc += 2
 
     def PRN(self):
         """
@@ -314,7 +331,7 @@ class CPU:
             # Machine code: # 00000001
             if IR in branchTable:
                 IR = self.ram_read(self.pc)  # Instruction register
-                print(f"IR is {IR}")
+                # print(f"IR is {IR}")
                 self.trace()
                 branchTable[IR]()
             else:
