@@ -29,10 +29,29 @@ class CPU:
             0b00000000,
             0b00000001,  # HLT
         ]
+        filename = sys.argv[1]
+        with open(filename) as program_file:  # opens file
+            for line in program_file:  # reads file line by line
+                # turns the line into int instead of string
+                line = line.split('#')
+                line = line[0].strip()  # list
+                if line == '':
+                    continue
+                # turns the line into <int> instead of string store the address in memory
+                self.ram[address] = int(line, base=2)
+                address += 1  # add one and goes to the next
 
-        for instruction in program:
-            self.ram[address] = instruction
-            address += 1
+        # with open(filename) as program_file:
+        #     for line in program_file:
+        #         arr1 = line.split('#', 1)
+        #         line = int(arr1[0].strip(), base2)
+        #         if len(line)<1:
+        #             continue
+        #         self.ram[address] = line
+        #         address += 1
+        # for instruction in program:
+        #     self.ram[address] = instruction
+        #     address += 1
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
@@ -74,8 +93,15 @@ class CPU:
         pass
 
     def MUL():
-        print("MUL not implemented yet")
-        pass
+        # Eventually I will want to hook this up to the ALU
+        # I will want to perform the operations in the ALU
+        # using only && and ||. I would want ADD to use these
+        # and multiply to preform this operation over and overagain
+
+        # For MVP I will just multiply the two together here
+        self.reg[self.ram_read(self.pc + 1)
+                 ] *= self.reg[self.ram_read(self.pc+2)]
+        self.pc += 3
 
     def DIV():
         print("DIV not implemented yet")
