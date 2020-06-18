@@ -20,15 +20,15 @@ class CPU:
 
         # For now, we've just hardcoded a program:
 
-        program = [
-            # From print8.ls8
-            0b10000010,  # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111,  # PRN R0
-            0b00000000,
-            0b00000001,  # HLT
-        ]
+        # program = [
+        #     # From print8.ls8
+        #     0b10000010,  # LDI R0,8
+        #     0b00000000,
+        #     0b00001000,
+        #     0b01000111,  # PRN R0
+        #     0b00000000,
+        #     0b00000001,  # HLT
+        # ]
         filename = sys.argv[1]
         with open(filename) as program_file:  # opens file
             for line in program_file:  # reads file line by line
@@ -58,7 +58,12 @@ class CPU:
 
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
-        # elif op == "SUB": etc
+        elif op == "SUB":
+            self.reg[reg_a] -= self.reg[reg_b]
+        elif op == "MUL":
+            self.reg[reg_a] *= self.reg[reg_b]
+        elif op == "DIV":
+            self.reg[reg_a] /= self.reg[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -84,13 +89,17 @@ class CPU:
 
     # ALU Functions
 
-    def ADD():
-        print("ADD not implemented yet")
-        pass
+    def ADD(self):
+        reg_a = self.ram_read(self.pc+1)
+        reg_b = self.ram_read(self.pc+2)
+        self.alu('ADD', reg_a, reg_b)
+        self.pc += 3
 
-    def SUB():
-        print("SUB not implemented yet")
-        pass
+    def SUB(self):
+        reg_a = self.ram_read(self.pc+1)
+        reg_b = self.ram_read(self.pc+2)
+        self.alu('SUB', reg_a, reg_b)
+        self.pc += 3
 
     def MUL(self):
         # Eventually I will want to hook this up to the ALU
@@ -99,103 +108,132 @@ class CPU:
         # and multiply to preform this operation over and overagain
 
         # For MVP I will just multiply the two together here
-        self.reg[self.ram_read(self.pc + 1)
-                 ] *= self.reg[self.ram_read(self.pc+2)]
+        reg_a = self.ram_read(self.pc+1)
+        reg_b = self.ram_read(self.pc+2)
+        self.alu('MUL', reg_a, reg_b)
         self.pc += 3
 
-    def DIV():
-        print("DIV not implemented yet")
-        pass
+    def DIV(self):
+        reg_a = self.ram_read(self.pc+1)
+        reg_b = self.ram_read(self.pc+2)
+        self.alu('DIV', reg_a, reg_b)
+        self.pc += 3
 
-    def MOD():
+    def MOD(self):
         print("MOD not implemented yet")
         pass
 
-    def INC():
+    def INC(self):
         print("INC not implemented yet")
         pass
 
-    def DEC():
+    def DEC(self):
         print("DEC not implemented yet")
         pass
 
-    def CMP():
+    def CMP(self):
         print("CMP not implemented yet")
         pass
 
-    def AND():
+    def AND(self):
         print("AND not implemented yet")
         pass
 
-    def NOT():
+    def NOT(self):
         print("NOT not implemented yet")
         pass
 
-    def OR():
+    def OR(self):
         print("OR not implemented yet")
         pass
 
-    def XOR():
+    def XOR(self):
         print("XOR not implemented yet")
         pass
 
-    def SHL():
+    def SHL(self):
         print("SHL not implemented yet")
         pass
 
-    def SHR():
-        print("SHR not implmented yet")
+    def SHR(self):
+        print("SHR not implemented yet")
         pass
 
-    # PC Mutators
+    # PC Mutator
 
-    def CALL():
-        print("CALL not implemented yet")
-        pass
+    def CALL(self):
+        """1. The address of the ***instruction*** _directly after_ `CALL`
+        is pushed onto the stack.
+        This allows us to return to where we left off when the subroutine finishes executing.
+        2. The PC is set to the address stored in the given register.
+        We jump to that location in RAM and execute the first instruction in the subroutine.
+        The PC can move forward or backwards from its current location."""
+        # push the address of pc+1 onto the stack
+        # Set the PC to the value stored at the given register
+        # Jump to that register specified
+        return_addr = self.pc+2
 
-    def RET():
-        print("RET not implemented yet")
-        pass
+        # Push on the stack
+        self.reg[7] -= 1
+        self.ram[self.reg[7]] = return_addr
 
-    def INT():
+        # Get the address for the call
+        reg_num = self.ram[self.pc+1]
+        subroutine_addr = self.reg[reg_num]
+        # Call it
+        self.pc = subroutine_addr
+
+    def RET(self):
+        """ 
+            Return from subroutine.
+            Pop the value from the top of the stack and store it in the PC.
+        """
+
+        # Copy the value from memory at the address pointed to by SP
+        top_of_stack = self.reg[7]
+        return_addr = self.ram[top_of_stack]
+        self.pc = return_addr
+        self.reg[7] += 1
+
+    def INT(self):
         print("INT not implemented yet")
         pass
 
-    def IRET():
+    def IRET(self):
         print("IRET not implemented yet")
         pass
 
-    def JMP():
+    def JMP(self):
         print("JMP not implemented yet")
         pass
 
-    def JEQ():
+    def JEQ(self):
         print("JEQ not implemented yet")
         pass
 
-    def JNE():
+    def JNE(self):
         print("JNE not implemented yet")
         pass
 
-    def JGT():
+    def JGT(self):
         print("JGT not implemented yet")
         pass
 
-    def JLT():
+    def JLT(self):
         print("JLT not implemented yet")
         pass
 
-    def JLE():
+    def JLE(self):
         print("JLE not implemented yet")
         pass
 
-    def JGE():
+    def JGE(self):
         print("JGE not implemented yet")
         pass
 
     # Other
 
-    def NOP():
+    def NOP(self):
         """
             No operation. Do nothing for this instruction.
         """
@@ -242,10 +280,9 @@ class CPU:
         self.pc += 2
 
     def POP(self):
-        print("POP ran")
         # Copy the value from memory at the address pointed to by SP
         address = self.reg[7]
-        value = self.reg[address]
+        value = self.ram[address]
         reg_num = self.ram[self.pc+1]
         self.reg[reg_num] = value
         # Increment the SP
@@ -279,9 +316,9 @@ class CPU:
 
         IR = self.ram_read(self.pc)  # Instruction register
         # Register number
-        operand_a = self.ram_read(self.pc + 1)
-        # Value
-        operand_b = self.ram_read(self.pc + 2)
+        # operand_a = self.ram_read(self.pc + 1)
+        # # Value
+        # operand_b = self.ram_read(self.pc + 2)
         branchTable = {
             0b10100000: self.ADD,
             0b10100001: self.SUB,
@@ -313,9 +350,9 @@ class CPU:
             0b10000010: self.LDI,
             0b10000011: self.LD,
             0b10000100: self.ST,
-            0b01000101: self.PUSH,
-            0b01000110: self.POP,
-            0b01000111: self.PRN,
+            0b01000101: self.PUSH,  # implemented
+            0b01000110: self.POP,  # implemented
+            0b01000111: self.PRN,  # implemented
             0b01001000: self.PRA
         }
         #  if else for various actions

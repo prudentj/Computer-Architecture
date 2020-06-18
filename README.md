@@ -21,11 +21,11 @@
 - [x] Un-hardcode the machine code
 - [ ] Implement the `load()` function to load an `.ls8` file given the filename
       passed in as an argument
-- [ ] Implement a Multiply instruction (run `mult.ls8`)
+- [x] Implement a Multiply instruction (run `mult.ls8`)
 
 ### Day 3: Stack
 
-- [ ] Implement the System Stack and be able to run the `stack.ls8` program
+- [x] Implement the System Stack and be able to run the `stack.ls8` program
 
 ### Day 4: Get `call.ls8` running
 
