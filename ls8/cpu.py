@@ -89,8 +89,21 @@ class CPU:
             elif reg_a_value < reg_b_value:
                 self.fl = 0b00000100
         elif op == "MOD":
-            self.reg[reg_a]
-
+            self.reg[reg_a] = self.reg[reg_a] % self.reg[reg_b]
+        elif op == "AND":
+            self.reg[reg_a] = self.reg[reg_a] & self.reg[reg_b]
+        elif op == "OR":
+            self.reg[reg_a] = self.reg[reg_a] | self.reg[reg_b]
+        elif op == "NOT":
+            # Can be any register not just A
+            # This one is special because reg_a contains the register the value
+            self.reg[reg_a] = ~ self.reg[reg_a]
+        elif op == "XOR":
+            self.reg[reg_a] = self.reg[reg_a] ^ self.reg[reg_b]
+        elif op == "SHR":
+            self.reg[reg_a] = self.reg[reg_a] >> self[reg_b]
+        elif op == "SHL":
+            self.reg[reg_a] = self.reg[reg_a] << self[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -204,44 +217,61 @@ class CPU:
         self.pc += 3
 
     def AND(self):
-        print("AND not implemented yet")
-        pass
+        """
+        Bitwise-AND the values in registerA and registerB, then store the result in registerA.
+        """
+        reg_a = self.ram_read(self.pc+1)
+        reg_b = self.ram_read(self.pc+2)
+        self.alu("AND", reg_a, reg_b)
+        self.pc += 3
 
     def NOT(self):
         """Perform a bitwise-NOT on the value in a register,
         storing the result in the register."""
         print("NOT not implemented yet")
-        pass
+        # Currently wrong in ALU if because it can be any register not just A
+        reg_a = self.ram_read(self.pc+1)
+        reg_b = None
+        self.alu("NOT", reg_a, reg_b)
 
     def OR(self):
         """Perform a bitwise-OR between the values in registerA and registerB,
         storing the result in registerA."""
-        print("OR not implemented yet")
-        pass
+        reg_a = self.ram_read(self.pc+1)
+        reg_b = self.ram_read(self.pc+2)
+        self.alu("OR", reg_a, reg_b)
+        self.pc += 3
 
     def XOR(self):
         """Perform a bitwise-XOR between the values in registerA and registerB,
         storing the result in registerA."""
-        print("XOR not implemented yet")
-        pass
+        reg_a = self.ram_read(self.pc+1)
+        reg_b = self.ram_read(self.pc+2)
+        self.alu("XOR", reg_a, reg_b)
+        self.pc += 3
 
     def SHL(self):
         """Shift the value in registerA left by the number
         of bits specified in registerB,
         filling the low bits with 0."""
-        print("SHL not implemented yet")
-        pass
+        reg_a = self.ram_read(self.pc+1)
+        reg_b = self.ram_read(self.pc+2)
+        self.alu("SHL", reg_a, reg_b)
+        self.pc += 3
 
     def SHR(self):
         """Shift the value in registerA right by the number of bits specified in registerB,
         filling the high bits with 0."""
         print("SHR not implemented yet")
-        pass
+        reg_a = self.ram_read(self.pc+1)
+        reg_b = self.ram_read(self.pc+2)
+        self.alu("SHR", reg_a, reg_b)
+        self.pc += 3
 
     # PC Mutator
 
     def CALL(self):
-        print("Call Ran")
+        # print("Call Ran")
         """1. The address of the ***instruction*** _directly after_ `CALL`
         is pushed onto the stack.
         This allows us to return to where we left off when the subroutine finishes executing.
@@ -276,10 +306,20 @@ class CPU:
         self.reg[7] += 1
 
     def INT(self):
+        """Issue the interrupt number stored in the given register.
+        This will set the _n_th bit in the IS register to the value in the given register."""
         print("INT not implemented yet")
         pass
 
     def IRET(self):
+        """Return from an interrupt handler.
+
+        The following steps are executed:
+
+        Registers R6-R0 are popped off the stack in that order.
+        The FL register is popped off the stack.
+        The return address is popped off the stack and stored in PC.
+        Interrupts are re-enabled"""
         print("IRET not implemented yet")
         pass
 
